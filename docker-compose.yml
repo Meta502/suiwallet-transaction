@@ -1,0 +1,23 @@
+services:
+  redis:
+    image: redis
+    ports: 
+      - 6000:6379
+  
+  postgres:
+    image: postgres
+    ports:
+      - 5435:5432
+    volumes:
+      - suiwallet_transaction_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+
+volumes:
+  suiwallet_transaction_data:
