@@ -6,6 +6,7 @@ import prisma from "../engines/prisma"
 import transferHandler from "./handlers/transferHandler"
 import topUpHandler from "./handlers/topUpHandler"
 import virtualAccountHandler from "./handlers/virtualAccountHandler"
+import virtualAccountWithdrawalHandler from "./handlers/virtualAccountWithdrawalHandler"
 
 dotenv.config()
 
@@ -41,6 +42,10 @@ const handler = async (transactionId: string, type: string) => {
 
   if (type === TransactionType.VIRTUAL_ACCOUNT) {
     return virtualAccountHandler(transaction)
+  }
+
+  if (type === TransactionType.VIRTUAL_ACCOUNT_WITHDRAWAL) {
+    return virtualAccountWithdrawalHandler(transaction)
   }
 }
 

@@ -14,6 +14,7 @@ enum TransactionType {
   TOPUP
   TRANSFER
   VIRTUAL_ACCOUNT
+  VIRTUAL_ACCOUNT_WITHDRAWAL
 }
 
 enum TransactionStatus {
@@ -30,9 +31,10 @@ enum VirtualAccountStatus {
 }
 
 model Account {
-  id          String        @id @default(cuid())
-  balance     Decimal
-  Transaction Transaction[]
+  id             String           @id @default(cuid())
+  balance        Decimal
+  Transaction    Transaction[]
+  VirtualAccount VirtualAccount[]
 }
 
 model Transaction {
@@ -52,5 +54,7 @@ model VirtualAccount {
   title       String
   description String
   amount      Decimal
-  status      VirtualAccountStatus
+  status      VirtualAccountStatus @default(UNPAID)
+  account     Account              @relation(fields: [accountId], references: [id])
+  accountId   String
 }
