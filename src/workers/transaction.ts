@@ -3,6 +3,9 @@ import dotenv from "dotenv"
 import { getRabbitMQInstance } from "../engines/rabbitmq"
 import { TransactionType, TransactionStatus } from "@prisma/client"
 import prisma from "../engines/prisma"
+import transferHandler from "./handlers/transferHandler"
+import topUpHandler from "./handlers/topUpHandler"
+import virtualAccountHandler from "./handlers/virtualAccountHandler"
 
 dotenv.config()
 
@@ -29,29 +32,19 @@ const handler = async (transactionId: string, type: string) => {
   })
 
   if (type === TransactionType.TOPUP) {
-    const accountUpdate = prisma.account.update({
-      where: {
-        id: transaction.accountId
-      },
-      data: {
-        balance: {
-          increment: Number(transaction.metadata?.amount) ?? 0
-        }
-      }
-    })
+    return topUpHandler(transaction)
+  }
 
-    const transactionUpdate = prisma.transaction.update({
-      where: {
-        id: transaction.id
-      },
-      data: {
-        status: TransactionStatus.FINISHED
-      }
-    })
+  if (type === TransactionType.TRANSFER) {
+    return transferHandler(transaction)
+  }
 
-    return Promise.all([accountUpdate, transactionUpdate])
+  if (type === TransactionType.VIRTUAL_ACCOUNT) {
+    return virtualAccountHandler(transaction)
   }
 }
+
+
 
 const consumer = (channel: Channel) => (msg: ConsumeMessage | null) => {
   if (msg) {

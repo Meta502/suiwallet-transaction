@@ -23,6 +23,12 @@ enum TransactionStatus {
   FINISHED
 }
 
+enum VirtualAccountStatus {
+  UNPAID
+  PAID
+  WITHDRAWED
+}
+
 model Account {
   id          String        @id @default(cuid())
   balance     Decimal
@@ -38,4 +44,13 @@ model Transaction {
   account   Account           @relation(fields: [accountId], references: [id])
   createdAt DateTime          @default(now())
   updatedAt DateTime          @default(now()) @updatedAt
+}
+
+model VirtualAccount {
+  id          String               @id @default(cuid())
+  paymentCode String               @unique
+  title       String
+  description String
+  amount      Decimal
+  status      VirtualAccountStatus
 }

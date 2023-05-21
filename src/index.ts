@@ -1,7 +1,9 @@
 import dotenv from "dotenv"
 import express from "express"
+
 import inquiryRouter from "./routers/inquiry"
 import topUpRouter from "./routers/topUp"
+import transferRouter from "./routers/transfer"
 
 dotenv.config()
 
@@ -11,12 +13,13 @@ const port = process.env.port || 3005
 
 app.use(express.json())
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.json("OK")
 })
 
 app.use("/inquiry", inquiryRouter)
 app.use("/top-up", topUpRouter)
+app.use("/transfer", transferRouter)
 
 app.listen(port, () => {
   console.log("HTTP server listening on port " + port)
