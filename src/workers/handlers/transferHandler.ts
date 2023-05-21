@@ -1,4 +1,4 @@
-import { Account, Transaction, TransactionStatus } from "@prisma/client"
+import { Account, Transaction, TransactionStatus, TransactionType } from "@prisma/client"
 import prisma from "../../engines/prisma"
 
 export default function transferHandler(transaction: Transaction & { account: Account, metadata: any }) {
@@ -25,7 +25,7 @@ export default function transferHandler(transaction: Transaction & { account: Ac
     },
     data: {
       balance: {
-        decrement: Number(transaction.metadata?.amount) ?? 0
+        increment: Number(transaction.metadata?.amount) ?? 0
       }
     }
   })
@@ -39,10 +39,27 @@ export default function transferHandler(transaction: Transaction & { account: Ac
     }
   })
 
+  const transactionCreation = prisma.transaction.create({
+    data: {
+      type: TransactionType.TRANSFER,
+      status: TransactionStatus.FINISHED,
+      metadata: {
+        amount: Number(transaction.metadata?.amount),
+        receiving: true,
+      },
+      account: {
+        connect: {
+          id: String(transaction.metadata?.targetId)
+        }
+      }
+    }
+  })
+
   return prisma.$transaction([
     transactionUpdate,
     sourceUpdate,
     targetUpdate,
+    transactionCreation,
   ])
 }
 

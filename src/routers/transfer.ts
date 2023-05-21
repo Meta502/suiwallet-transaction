@@ -8,6 +8,20 @@ const transferRouter = Router()
 transferRouter.post("/", async (req: Request, res: Response) => {
   const { sourceId, targetId, amount } = req.body
 
+  const account = await prisma.account.findUnique({
+    where: {
+      id: sourceId
+    }
+  })
+
+  if (!account) {
+    return res.status(400).json({ message: "Source account not found" })
+  }
+
+  if (account?.balance < amount) {
+    return res.status(400).json({ message: "Not enough money" })
+  }
+
   const transaction = await prisma.transaction.create({
     data: {
       type: TransactionType.TRANSFER,
