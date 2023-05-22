@@ -18,7 +18,7 @@ transferRouter.post("/", async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Source account not found" })
   }
 
-  if (account?.balance < amount) {
+  if (Number(account?.balance) < Number(amount)) {
     return res.status(400).json({ message: "Not enough money" })
   }
 
@@ -46,7 +46,9 @@ transferRouter.post("/", async (req: Request, res: Response) => {
     })
   ))
 
-  return res.status(201).json()
+  return res.status(201).json({
+    message: "Transfer successful"
+  })
 })
 
 export default transferRouter

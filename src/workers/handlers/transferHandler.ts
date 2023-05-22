@@ -71,6 +71,15 @@ export default function transferHandler(transaction: Transaction & { account: Ac
           status: "success"
         }
       )
+
+      sendNotification(
+        transaction.metadata?.targetId,
+        {
+          title: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(transaction.metadata?.amount)} has been added to your account`,
+          description: `Incoming transfer from ${transaction.accountId}`,
+          status: "success"
+        }
+      )
     })
 }
 
