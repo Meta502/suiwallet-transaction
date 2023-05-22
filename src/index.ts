@@ -5,6 +5,7 @@ import inquiryRouter from "./routers/inquiry"
 import topUpRouter from "./routers/topUp"
 import transferRouter from "./routers/transfer"
 import virtualAccountRouter from "./routers/virtualAccount"
+import accountRouter from "./routers/account"
 
 dotenv.config()
 
@@ -22,8 +23,10 @@ app.use("/inquiry", inquiryRouter)
 app.use("/top-up", topUpRouter)
 app.use("/transfer", transferRouter)
 app.use("/virtual-account", virtualAccountRouter)
+app.use("/account", accountRouter)
 
 app.listen(port, () => {
   console.log("HTTP server listening on port " + port)
 })
+
 

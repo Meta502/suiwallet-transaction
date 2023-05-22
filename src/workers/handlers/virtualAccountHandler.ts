@@ -1,5 +1,6 @@
 import { Account, Transaction, TransactionStatus, VirtualAccountStatus } from "@prisma/client";
 import prisma from "../../engines/prisma";
+import sendNotification from "../utils/sendNotification";
 
 export default async function virtualAccountHandler(transaction: Transaction & { account: Account, metadata: any }) {
   const sourceBalance = transaction.account.balance
@@ -13,7 +14,7 @@ export default async function virtualAccountHandler(transaction: Transaction & {
 
   if (!virtualAccount) throw Error("Invalid virtual account")
 
-  if (sourceBalance < virtualAccount.amount) throw Error("Not enough balance")
+  if (Number(sourceBalance) < Number(virtualAccount.amount)) throw Error("Not enough balance")
 
   const sourceUpdate = prisma.account.update({
     where: {
@@ -49,4 +50,22 @@ export default async function virtualAccountHandler(transaction: Transaction & {
     virtualAccountUpdate,
     transactionUpdate,
   ])
+    .then(() => {
+      sendNotification(
+        transaction.accountId,
+        {
+          title: "Virtual Account Payment Successful",
+          description: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(transaction.metadata?.amount)} has been deducted from your account`,
+          status: "success"
+        }
+      )
+      sendNotification(
+        virtualAccount.accountId,
+        {
+          title: "Your Virtual Account Was Paid",
+          description: `Your VA "${virtualAccount.description}" has been paid and can now be withdrawed`,
+          status: "success",
+        }
+      )
+    })
 }

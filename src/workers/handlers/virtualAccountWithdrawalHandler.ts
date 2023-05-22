@@ -1,5 +1,6 @@
 import { Transaction, TransactionStatus } from "@prisma/client"
 import prisma from "../../engines/prisma"
+import sendNotification from "../utils/sendNotification"
 
 export default async function virtualAccountWithdrawalHandler(transaction: Transaction & { metadata: any }) {
   const virtualAccountId = transaction?.metadata?.virtualAccountId
@@ -49,4 +50,14 @@ export default async function virtualAccountWithdrawalHandler(transaction: Trans
     updateAccount,
     updateTransaction,
   ])
+    .then(() => {
+      sendNotification(
+        transaction.accountId,
+        {
+          title: "Virtual Account Withdrawal Successful",
+          description: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(transaction.metadata?.amount)} has been added to your account`,
+          status: "success"
+        }
+      )
+    })
 }

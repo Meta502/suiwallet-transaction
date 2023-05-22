@@ -1,5 +1,6 @@
 import { Account, Transaction, TransactionStatus, TransactionType } from "@prisma/client"
 import prisma from "../../engines/prisma"
+import sendNotification from "../utils/sendNotification"
 
 export default function transferHandler(transaction: Transaction & { account: Account, metadata: any }) {
   const sourceBalance = transaction.account.balance
@@ -61,5 +62,15 @@ export default function transferHandler(transaction: Transaction & { account: Ac
     targetUpdate,
     transactionCreation,
   ])
+    .then(() => {
+      sendNotification(
+        transaction.accountId,
+        {
+          title: "Transfer Successful",
+          description: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(transaction.metadata?.amount)} has been deducted from your account`,
+          status: "success"
+        }
+      )
+    })
 }
 

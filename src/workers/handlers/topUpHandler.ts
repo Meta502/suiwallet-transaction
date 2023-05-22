@@ -1,5 +1,6 @@
 import { Transaction, TransactionStatus } from "@prisma/client";
 import prisma from "../../engines/prisma";
+import sendNotification from "../utils/sendNotification";
 
 export default function topUpHandler(transaction: Transaction & { metadata: any }) {
   const accountUpdate = prisma.account.update({
@@ -26,4 +27,14 @@ export default function topUpHandler(transaction: Transaction & { metadata: any 
     transactionUpdate,
     accountUpdate,
   ])
+    .then(() => {
+      sendNotification(
+        transaction.accountId,
+        {
+          title: "Top-Up Successful",
+          description: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(transaction.metadata?.amount)} has been added to your account`,
+          status: "success"
+        }
+      )
+    })
 }

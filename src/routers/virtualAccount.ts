@@ -9,8 +9,11 @@ virtualAccountRouter.get("/account/:userId", async (req: Request, res: Response)
 
   const virtualAccounts = await prisma.virtualAccount.findMany({
     where: {
-      accountId: userId
-    }
+      accountId: userId,
+      status: {
+        not: "WITHDRAWED"
+      }
+    },
   })
 
   return res
@@ -67,7 +70,8 @@ virtualAccountRouter.delete("/withdraw/:virtualAccountId", async (req: Request, 
     data: {
       type: TransactionType.VIRTUAL_ACCOUNT_WITHDRAWAL,
       metadata: {
-        virtualAccountId: virtualAccount.id
+        virtualAccountId: virtualAccount.id,
+        amount: Number(virtualAccount.amount),
       },
       account: {
         connect: {
@@ -117,7 +121,7 @@ virtualAccountRouter.put("/:paymentCode", async (req: Request, res: Response) =>
     return res.status(400).json({ message: "Virtual account not found" })
   }
 
-  if (account?.balance < virtualAccount.amount) {
+  if (Number(account?.balance) < Number(virtualAccount.amount)) {
     return res.status(400).json({ message: "Not enough funds" })
   }
 
@@ -125,7 +129,8 @@ virtualAccountRouter.put("/:paymentCode", async (req: Request, res: Response) =>
     data: {
       type: TransactionType.VIRTUAL_ACCOUNT,
       metadata: {
-        virtualAccountId: virtualAccount.id
+        virtualAccountId: virtualAccount.id,
+        amount: Number(virtualAccount.amount),
       },
       account: {
         connect: {
