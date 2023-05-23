@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express"
 import prisma from "../engines/prisma"
 import { TransactionType, VirtualAccountStatus } from "@prisma/client"
 import { getRabbitMQInstance } from "../engines/rabbitmq"
+import sendNotification from "../workers/utils/sendNotification"
 
 const virtualAccountRouter = Router()
 virtualAccountRouter.get("/account/:userId", async (req: Request, res: Response) => {
@@ -55,8 +56,20 @@ virtualAccountRouter.delete("/withdraw/:virtualAccountId", async (req: Request, 
   }
 
   if (virtualAccount.status === VirtualAccountStatus.UNPAID) {
-    return res.status(400).json({
-      message: "Virtual account has not yet been paid"
+    await prisma.virtualAccount.delete({
+      where: {
+        id: virtualAccountId,
+      },
+    })
+
+    sendNotification(virtualAccount.accountId, {
+      title: "Your virtual account has been successfully deleted",
+      description: "",
+      status: "success"
+    })
+
+    return res.status(200).json({
+      message: "Virtual account has been deleted"
     })
   }
 
