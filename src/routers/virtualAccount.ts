@@ -134,6 +134,15 @@ virtualAccountRouter.put("/:paymentCode", async (req: Request, res: Response) =>
     return res.status(400).json({ message: "Virtual account not found" })
   }
 
+  if (virtualAccount.status === "PAID" || virtualAccount.status === "WITHDRAWED") {
+    sendNotification(userId, {
+      title: "This VA has already been paid/withdrawed",
+      description: "Please try entering another payment code",
+      status: "error"
+    })
+    return res.status(400).json({ message: "Virtual account has already been paid" })
+  }
+
   if (Number(account?.balance) < Number(virtualAccount.amount)) {
     return res.status(400).json({ message: "Not enough funds" })
   }
