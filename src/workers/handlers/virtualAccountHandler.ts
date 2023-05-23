@@ -12,9 +12,23 @@ export default async function virtualAccountHandler(transaction: Transaction & {
     }
   })
 
-  if (!virtualAccount) throw Error("Invalid virtual account")
+  if (!virtualAccount) {
+    sendNotification(transaction.accountId, {
+      title: "Virtual Account Not Found",
+      description: "Please check your VA payment code and try again",
+      status: "error",
+    })
+    throw Error("Invalid virtual account")
+  }
 
-  if (Number(sourceBalance) < Number(virtualAccount.amount)) throw Error("Not enough balance")
+  if (Number(sourceBalance) < Number(virtualAccount.amount)) {
+    sendNotification(transaction.accountId, {
+      title: "You do not have enough money in your account",
+      description: "Please top-up your account and try again",
+      status: "error",
+    })
+    throw Error("Not enough balance")
+  }
 
   const sourceUpdate = prisma.account.update({
     where: {

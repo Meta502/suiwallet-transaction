@@ -13,6 +13,11 @@ export default async function virtualAccountWithdrawalHandler(transaction: Trans
   })
 
   if (!virtualAccount || virtualAccount.status !== "PAID") {
+    sendNotification(transaction.accountId, {
+      title: "This Virtual Account Has Already Been Withdrawn",
+      description: "Please try again with another Virtual Account",
+      status: "warning",
+    })
     return
   }
 

@@ -14,8 +14,18 @@ transferRouter.post("/", async (req: Request, res: Response) => {
     }
   })
 
+  const targetAccount = await prisma.account.findUnique({
+    where: {
+      id: targetId
+    }
+  })
+
   if (!account) {
     return res.status(400).json({ message: "Source account not found" })
+  }
+
+  if (!targetAccount) {
+    return res.status(400).json({ message: "Target account not found" })
   }
 
   if (Number(account?.balance) < Number(amount)) {

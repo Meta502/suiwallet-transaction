@@ -6,6 +6,11 @@ export default function transferHandler(transaction: Transaction & { account: Ac
   const sourceBalance = transaction.account.balance
   if (!transaction.metadata?.amount) throw Error("Malformed transfer request")
   if (Number(sourceBalance) < Number(transaction.metadata?.amount)) {
+    sendNotification(transaction.accountId, {
+      title: "You do not have enough money to finish this transfer",
+      description: "Please top-up your account and try again",
+      status: "error",
+    })
     throw Error("Insufficient account balance")
   }
 

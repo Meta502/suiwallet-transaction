@@ -57,17 +57,19 @@ const consumer = (channel: Channel) => (msg: ConsumeMessage | null) => {
       msg.content.toString()
     ) as { id: string, type: TransactionType }
 
-    handler(
-      payload.id,
-      payload.type,
-    )
-      .then(() => {
-        channel.ack(msg)
-      })
-      .catch((e) => {
-        console.error(e)
-        channel.nack(msg)
-      })
+    setTimeout(() => {
+      handler(
+        payload.id,
+        payload.type,
+      )
+        .then(() => {
+          channel.ack(msg)
+        })
+        .catch((e) => {
+          console.error(e)
+          channel.ack(msg)
+        })
+    }, 5000)
   }
 }
 
